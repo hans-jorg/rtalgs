@@ -67,11 +67,20 @@ char *bell="";
 char *bell="\a\a";
 #endif
 
+char *strupr(char *s) {
+char *p = s;
+
+    while (*p) {
+        if( islower(*p) ) toupper(*p);
+        p++;
+    }
+    return s;
+}
 /*  System-related data structures and definitions */
 /***************************************************/
 char sys_id='a';  /* 'system name' of the next task in configuration file */
 int num_tasks;    /* is limited to 24, for not running out of sys_id letters */
-time_t sys_time, max_time; /* current clock value, and simulation upper limit */
+timet sys_time, max_time; /* current clock value, and simulation upper limit */
 int context_switches=0;
 struct{
     char *history,
@@ -80,15 +89,7 @@ struct{
              *time_axe_low,  *time_low;
 } timeline;
 
-/* enum guarantees assignment of values from 0 on
- * IDLE: the task has not started execution yet
- * BLOCKED: the task is not eligible for execution
- * READY: it just needs the CPU to execute
- * RUNNING: the task that is currently running
- * DEAD: the task has finished its current instance's execution
- *****************************************************************************/
-enum state_e { DEAD, IDLE, BLOCKED, READY, RUNNING};
-enum criticality_e { LOW, HIGH};
+
 
 task_t  *task_set, *idle_task, *current;
 list merit_list,  /* list of current task instances, instantiated from
@@ -193,7 +194,7 @@ void init( int argc, char *argv[])
             sched_alg_end = monotonic_rate_end;
             break;
         default:
-            fprintf( stderr, "No valid algorithm selected: '%c'\n\n%s", *argv, help);
+            fprintf( stderr, "No valid algorithm selected: '%c'\n\n%s", *(argv[1]+1), help);
             exit(-1);
     }
 
@@ -282,7 +283,7 @@ void draw_timeline( void)
         printf( "%c\t%s\n", (task_set+i)->sys_id, (task_set+i)->name);
 }
 
-time_t now( void){ return( sys_time);};
+timet now( void){ return( sys_time);};
 
 /* set up instance's dynamic parameters */
 void task_init( task_t *task)
@@ -294,7 +295,7 @@ void task_init( task_t *task)
 
     /* task->laxity       = task->deadline - now() - task->remaining;
      * but task->deadline = now() + task->period;
-     * and task->remaining= task->cpu_time,  
+     * and task->remaining= task->cpu_time,
      * ==>  task->laxity  = task->period - task->cpu_time;
      *****************************************************************************/
     task->laxity   = task->period - task->cpu_time;
@@ -749,8 +750,8 @@ void show_test_vector( void)
         strncpy( tmp, task->name, 22);
         memset( tmp+length, ' ', 22-length); tmp[ 22]='\0';
 
-        printf( "%s   % 6s    ", tmp, task->criticality ==HIGH? "high": "low");
-        printf( "% 5d   % 6d    ", task->period, task->cpu_time);
-        printf( "% 6.1f%%\n", 100.0 * (float )task->cpu_time / (float )task->period);
+        printf( "%s   %6s    ", tmp, task->criticality ==HIGH? "high": "low");
+        printf( "%5d   %6d    ", task->period, task->cpu_time);
+        printf( "%6.1f%%\n", 100.0 * (float )task->cpu_time / (float )task->period);
     }
 }

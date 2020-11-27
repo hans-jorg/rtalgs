@@ -18,7 +18,7 @@ typedef void *valueType;
 typedef char boolean;
 
 typedef struct nodeStructure *node;
-typedef struct nodeStructure{
+struct nodeStructure{
     keyType key;
     valueType v;
     #ifdef SKIPL_TEST
@@ -28,7 +28,7 @@ typedef struct nodeStructure{
 };
 
 typedef struct listStructure  *list;
-typedef struct listStructure{
+struct listStructure{
     char sys_id;
     int level;  /* Maximum level of the list
              * (1 more than the number of levels in the list) */

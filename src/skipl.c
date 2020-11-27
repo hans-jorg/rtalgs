@@ -299,7 +299,7 @@ static void show_skipl( list l)
     #endif
 
     for( n= l->header->forward[0]; n != NIL; n= n->forward[0])
-        printf( "%d('%d')--> ", n->key, n->v);
+        printf( "%ld('%p')--> ", n->key, n->v);
     printf( "NIL\n\n");
 }
 

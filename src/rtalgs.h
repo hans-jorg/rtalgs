@@ -7,8 +7,20 @@
 #define TRUE 1
 #define FALSE 0
 
-typedef int time_t;
+typedef int timet;
 #define MAX_VALUE 0x7fff
+
+/* enum guarantees assignment of values from 0 on
+ * IDLE: the task has not started execution yet
+ * BLOCKED: the task is not eligible for execution
+ * READY: it just needs the CPU to execute
+ * RUNNING: the task that is currently running
+ * DEAD: the task has finished its current instance's execution
+ *****************************************************************************/
+enum state_e { DEAD, IDLE, BLOCKED, READY, RUNNING};
+enum criticality_e { LOW, HIGH};
+
+
 
 typedef struct task_struct task_t;
 struct task_struct{
@@ -16,7 +28,7 @@ struct task_struct{
     char *name;
     enum state_e state;
     enum criticality_e criticality;
-    time_t period,
+    timet period,
         cpu_time,
         remaining,
         deadline, /* relative to instance start time */
@@ -24,14 +36,14 @@ struct task_struct{
         instance, /* current instance number */
         cycles;   /* number of instances executed so far */
     char buffer[ MAX_NAME_LENGTH+1];     /* to hold its name */
-    time_t *merit;
+    timet *merit;
 };
 
 
 void main( int argc, char *argv[]);
 void init( int argc, char *argv[]);
 void draw_timeline( void);
-time_t now( void);
+timet now( void);
 void task_init( task_t *task);
 
 task_t *update_laxity_and_get_least( list l);
