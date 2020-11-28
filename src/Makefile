@@ -16,7 +16,7 @@ clean:
 
 # run an example
 run: rtalgs
-	./rtalgs -l example.tst
+	./rtalgs -r example.tst
 
 # debug
 debug: rtalgs

@@ -236,7 +236,7 @@ void init( int argc, char *argv[])
 
     /* idle task initialization */
     idle_task=(task_set+0);
-    idle_task->sys_id='Z';
+    idle_task->sys_id='.';
     idle_task->name="Idle Task";
     idle_task->state=READY;
     idle_task->deadline= 0;
@@ -257,10 +257,6 @@ void draw_timeline( void)
     static char info[ SCREEN_WIDTH+1], c, last, *ptr;
     int i, no_lines, task_axe_length, offset, length;
 
-    for( ptr=timeline.history, last= *ptr++;   *ptr!='\0';   ptr++){
-        if( last!= *ptr) last= *ptr;
-        else *ptr=' ';
-    }
     /* build output time reference */
     for( sys_time=0; sys_time<=max_time; sys_time++){
         c= *timeline.time_low++ = sys_time%10+'0';
