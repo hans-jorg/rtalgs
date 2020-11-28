@@ -3,14 +3,16 @@
  * Skip list function declarations
  *****************************************************************************/
 
+#include <values.h> /* for MAXINT, MAXLONG */
+
 #ifdef SKIPL_TEST
 typedef int keyType;
-#define NIL_FOOTPRINT    0x7fff
+#define NIL_FOOTPRINT    MAXINT
 typedef int valueType;
 
 #else     /* when the library is applied to a project... */
 typedef long keyType;
-#define NIL_FOOTPRINT    0x7fffffff
+#define NIL_FOOTPRINT    MAXLONG
 typedef void *valueType;
 #define init skipl_library_init
 #endif

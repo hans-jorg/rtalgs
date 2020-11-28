@@ -40,7 +40,6 @@ struct task_struct{
 };
 
 
-void main( int argc, char *argv[]);
 void init( int argc, char *argv[]);
 void draw_timeline( void);
 timet now( void);

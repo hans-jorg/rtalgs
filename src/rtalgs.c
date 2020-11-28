@@ -36,6 +36,9 @@ where
 #include <string.h>
 #include <ctype.h>  /* for tolower() */
 #include <math.h>   /* for pow() */
+#ifdef DMALLOC
+#include "dmalloc.h"
+#endif
 
 #define SILENT      /* silent operation */
 
@@ -67,11 +70,14 @@ char *bell="";
 char *bell="\a\a";
 #endif
 
+/*
+ * emulate non standard strupr
+ */
 char *strupr(char *s) {
 char *p = s;
 
     while (*p) {
-        if( islower(*p) ) toupper(*p);
+        if( islower(*p) ) *p = toupper(*p);
         p++;
     }
     return s;
@@ -100,10 +106,11 @@ list merit_list,  /* list of current task instances, instantiated from
     deadline_list; /* list of current task instances' deadlines,
                         * ordered by increasing deadlines */
 
-void main( int argc, char *argv[])
+int main( int argc, char *argv[])
 {
     node n;
     task_t *task, *new;
+    int kn;
 
     init( argc, argv);
 
@@ -129,8 +136,9 @@ void main( int argc, char *argv[])
             }
 
             /* Look out for deadline failures */
-            while(  key_of( n=first_node_of( deadline_list))  <= sys_time){
-                if( (task= n->v)->state != DEAD){
+            while( (n=first_node_of( deadline_list)) && (key_of(n)<=sys_time) ) {
+                task = n->v;
+                if( task->state != DEAD ) {
                     printf( "At %d: task %c (\"%s\"), instance %d, Deadline Failure%s\n",
                         sys_time, task->sys_id, task->name, task->instance, bell);
                 }
@@ -162,6 +170,8 @@ void main( int argc, char *argv[])
     (sched_alg_end)();
 
     draw_timeline();
+
+    return 0;
 }
 
 
@@ -327,7 +337,7 @@ void monotonic_rate_init( void)
     float task_load=0.0, critical_task_load=0.0, schedulability_bound;
 
     /* in the RM case, 'deadline_list' is different from the 'merit_list' */
-    deadline_list= newList(); deadline_list ->sys_id= 'D';
+    deadline_list= newList(); deadline_list->sys_id= 'D';
 
     /* calculate n*(2^1/n - 1) */
     schedulability_bound= num_tasks * ( pow( 2.0, 1.0/num_tasks) -1.0);
@@ -625,7 +635,7 @@ int get_test_vector( char *fname)
     }
 
         /* try to decide if it's the rigth file */
-    if(  fgets( tmp, MAX_STRING-1, infile) !=NULL  &&  strcmp( strupr(tmp), "CONFIGURATION FILE:\n") ){
+    if(  fgets( tmp, MAX_STRING-1, infile) != NULL  &&  strcmp( strupr(tmp), "CONFIGURATION FILE:\n") ){
         fprintf( stderr, "Please check input file '%s': it's probably wrong\n", fname);
         exit(-1);
     }
@@ -633,8 +643,8 @@ int get_test_vector( char *fname)
     /* from now on, I will assume input file is complete and has no structural errors */
 
     /* skip everything until 'start' keyword */
-    lookup( "start", ":=");
-    lookup( "test set", ":=");
+    lookup( "START", ":=");
+    lookup( "TEST SET", ":=");
     token= strtok( NULL, "\n");
     while( *token==' ') token++;
     if( strlen( token) >MAX_NAME_LENGTH){
@@ -650,7 +660,7 @@ int get_test_vector( char *fname)
      * we can allocate them in a block.  This could change, as we
      * can allocate them on a per-task basis.
      *****************************************************************/
-    lookup( "Number of Application Tasks", ":=");
+    lookup( "NUMBER OF APPLICATION TASKS", ":=");
     if( (num_tasks= atoi( strtok( NULL, BLANKS))) >24){
         fprintf( stderr, "Sorry: Not enough sys_id letters for all tasks");
         exit(-1);
@@ -660,12 +670,12 @@ int get_test_vector( char *fname)
     }
 
         /* look out for the rigth order in the information */
-    lookup( "application tasks description", ":");
+    lookup( "APPLICATION TASKS DESCRIPTION", ":");
     /* Name Criticality Period Execution_time */
-    lookup( "Name", BLANKS);
-    lookup( "Criticality", BLANKS);
-    lookup( "Period", BLANKS);
-    lookup( "Execution_time", BLANKS);
+    lookup( "NAME", BLANKS);
+    lookup( "CRITICALITY", BLANKS);
+    lookup( "PERIOD", BLANKS);
+    lookup( "EXECUTION_TIME", BLANKS);
 
         /* now fill in the user data structure from file information */
     ill_task=FALSE;
@@ -703,7 +713,7 @@ int get_test_vector( char *fname)
     }
 
         /* skip everything until 'end.' keyword */
-    lookup( "end", ".");
+    lookup( "END", ".");
     fclose( infile);
     printf( "\nCONFIGURATION FILE: %s\n", fname);
     return( TRUE); /* if it could get this point, then all was OK */
@@ -713,17 +723,17 @@ int get_test_vector( char *fname)
 /* It's *case-insensitive*.  It could be coded more general, for reusability purposes */
 void lookup( char *target, char *seps)
 {
-    char *token;
+static char *token = NULL;
 
     do{
-        if( (token=strtok( NULL, seps))==NULL){
+        if( (token==NULL)||((token=strtok( NULL, seps))==NULL) ){
             do
                 fgets( tmp, MAX_STRING-1, infile);
             while( *tmp==';');
             token=strtok( tmp, seps);
         }
         token= strupr( token);
-    }while( strcmp( token, strupr( target)) && !feof( infile));
+    }while( strcmp(token,target) && !feof( infile));
     if( feof( infile)){
         fprintf( stderr, "Unexpected EOF while looking for '%s'\n", target);
         exit(-1);

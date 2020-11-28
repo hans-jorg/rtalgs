@@ -53,8 +53,12 @@
 
 #include <stdio.h>  /* for stderr */
 #include <stdlib.h> /* for rand() and malloc() */
+
 #if defined (MSC) && defined (SKIPL_TEST)
 #include <malloc.h> /* for _heapchk() */
+#endif
+#ifdef DMALLOC
+#include "dmalloc.h"
 #endif
 
 /* values particular to this case */
