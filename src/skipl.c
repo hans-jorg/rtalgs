@@ -82,21 +82,21 @@
 
 
 struct SkiplNodeStructure{
-	SkiplKeyType key;
-	SkiplValueType v;
-	#ifdef SKIPL_TEST
-	int level;
-	#endif
-	SkiplNode forward[1]; /* variable sized array of forward pointers */
+    SkiplKeyType key;
+    SkiplValueType v;
+    #ifdef SKIPL_TEST
+    int level;
+    #endif
+    SkiplNode forward[1]; /* variable sized array of forward pointers */
 };
 
 struct SkipListStructure {
-	int level;	/* Maximum level of the SkipList
-			 * (1 more than the number of levels in the SkipList) */
-	int randomsLeft;
-	int randomBits;
+    int level;    /* Maximum level of the SkipList
+             * (1 more than the number of levels in the SkipList) */
+    int randomsLeft;
+    int randomBits;
 
-	struct SkiplNodeStructure * header; /* pointer to header */
+    struct SkiplNodeStructure * header; /* pointer to header */
 };
 
 static SkiplNode NIL;
@@ -127,18 +127,18 @@ static void heapstat(int status);
 
 #ifdef DEBUG
 static void free_list(SkipList l){
-	l->header=NULL;
-	free(l);
+    l->header=NULL;
+    free(l);
 }
 
 static void free_node(SkiplNode q){
-	q->key=0;
-	#ifdef SKIPL_TEST
-	q->v=0;
-	#else
-	q->v=NULL;
-	#endif    /* SKIPL_TEST */
-	free(q);
+    q->key=0;
+    #ifdef SKIPL_TEST
+    q->v=0;
+    #else
+    q->v=NULL;
+    #endif    /* SKIPL_TEST */
+    free(q);
 }
 
 #else     /* DEBUG */
@@ -152,148 +152,148 @@ static int initialized = 0;
 
 void SkiplInit(void)
 {
-	NIL = newNodeOfLevel(0);
-	NIL->key = SKIPL_MAXKEY;
-	NIL->forward[0]=NIL;
+    NIL = newNodeOfLevel(0);
+    NIL->key = SKIPL_MAXKEY;
+    NIL->forward[0]=NIL;
     initialized = 1;
 }
 
 static SkiplNode newNodeOfLevel(int level)
 {
-	SkiplNode n;
+    SkiplNode n;
 
-	if((n=malloc(sizeof(struct SkiplNodeStructure) + level*sizeof(SkiplNode ) ))==NULL){
-		fprintf(stderr, "Insufficient memory available");
-		exit(-1);
-	}else{
-		#ifdef SKIPL_TEST
-		n->level=level;
-		#endif
-		return(n);
-	}
+    if((n=malloc(sizeof(struct SkiplNodeStructure) + level*sizeof(SkiplNode ) ))==NULL){
+        fprintf(stderr, "Insufficient memory available");
+        exit(-1);
+    }else{
+        #ifdef SKIPL_TEST
+        n->level=level;
+        #endif
+        return(n);
+    }
 }
 
 
 SkipList SkiplNew(void)
 {
-	SkipList l;
-	int i;
+    SkipList l;
+    int i;
 
     if(!initialized ) SkiplInit();
-	if((l = (SkipList)malloc(sizeof(struct SkipListStructure)) )==NULL) {
-		return NULL;
-	}
-	l->level = 0;
-	l->header = newNodeOfLevel(MaxNumberOfLevels);
-	l->randomBits = random();
-	l->randomsLeft = BitsInRandom/2;
-	for(i=0; i<MaxNumberOfLevels; i++)
-		l->header->forward[i] = NIL;
-	return(l);
+    if((l = (SkipList)malloc(sizeof(struct SkipListStructure)) )==NULL) {
+        return NULL;
+    }
+    l->level = 0;
+    l->header = newNodeOfLevel(MaxNumberOfLevels);
+    l->randomBits = random();
+    l->randomsLeft = BitsInRandom/2;
+    for(i=0; i<MaxNumberOfLevels; i++)
+        l->header->forward[i] = NIL;
+    return(l);
 }
 
 
 void SkiplFree(SkipList l)
 {
-	SkiplNode p,q;
-	p = l->header;
-	do{
-		q = p->forward[0];
-		free_node(p);
-		p = q;
-	}while (p!=NIL);
-	free_list(l);
+    SkiplNode p,q;
+    p = l->header;
+    do{
+        q = p->forward[0];
+        free_node(p);
+        p = q;
+    }while (p!=NIL);
+    free_list(l);
 }
 
 
 static int randomLevel(SkipList l)
 {
-	int level = 0;
-	int b;
+    int level = 0;
+    int b;
 
-	/* values hardcoded for p=0.25 */
-	do {
-		b = (l->randomBits)&3;     /* &1 for p=0.5 */
-		if (!b) level++;
-		l->randomBits >>= 2;     /* >>= 1 for p=0.5 */
-		if (-- (l->randomsLeft) == 0) {
-			l->randomBits = random();
-			l->randomsLeft = BitsInRandom/2;
-		};
-	} while (!b);
+    /* values hardcoded for p=0.25 */
+    do {
+        b = (l->randomBits)&3;     /* &1 for p=0.5 */
+        if (!b) level++;
+        l->randomBits >>= 2;     /* >>= 1 for p=0.5 */
+        if (-- (l->randomsLeft) == 0) {
+            l->randomBits = random();
+            l->randomsLeft = BitsInRandom/2;
+        };
+    } while (!b);
 
-	return(level>MaxLevel ? MaxLevel : level);
+    return(level>MaxLevel ? MaxLevel : level);
 }
 
 
 
 int SkiplInsert(SkipList l, SkiplKeyType key, SkiplValueType value)
 {
-	int k;
-	SkiplNode update[MaxNumberOfLevels];
-	SkiplNode p,q;
+    int k;
+    SkiplNode update[MaxNumberOfLevels];
+    SkiplNode p,q;
 
-	p = l->header;
-	k = l->level;
-	do{
-		while (q = p->forward[k], q->key < key)
-			p = q;
-		update[k] = p;
-	} while(--k>=0);
+    p = l->header;
+    k = l->level;
+    do{
+        while (q = p->forward[k], q->key < key)
+            p = q;
+        update[k] = p;
+    } while(--k>=0);
 
 #ifndef allowDuplicates
-	if (q->key == key) {
-		q->v = value;
-		return(false);
-	}
+    if (q->key == key) {
+        q->v = value;
+        return(false);
+    }
 #endif
 
-	k = randomLevel(l);
-	if(k> l->level){
-		k = ++ (l->level);
-		update[k] = l->header;
-	}
+    k = randomLevel(l);
+    if(k> l->level){
+        k = ++ (l->level);
+        update[k] = l->header;
+    }
 
-	q = newNodeOfLevel(k);
-	q->key = key;
-	q->v = value;
-	do{
-		p = update[k];
-		q->forward[k] = p->forward[k];
-		p->forward[k] = q;
-	}while(--k>=0);
+    q = newNodeOfLevel(k);
+    q->key = key;
+    q->v = value;
+    do{
+        p = update[k];
+        q->forward[k] = p->forward[k];
+        p->forward[k] = q;
+    }while(--k>=0);
 
 #ifndef allowDuplicates
-	return(true);
+    return(true);
 #endif
 }
 
 
 int SkiplDelete(SkipList l, SkiplKeyType key)
 {
-	int k,m;
-	SkiplNode update[ MaxNumberOfLevels];
-	SkiplNode p, q;
+    int k,m;
+    SkiplNode update[ MaxNumberOfLevels];
+    SkiplNode p, q;
 
-	p = l->header;
-	k = m = l->level;
-	do {
-		/* if the node ahead of p has lower key, advance p */
-		while (q = p->forward[k], q->key < key) p = q;
-		update[k] = p;
-	} while(--k>=0);
+    p = l->header;
+    k = m = l->level;
+    do {
+        /* if the node ahead of p has lower key, advance p */
+        while (q = p->forward[k], q->key < key) p = q;
+        update[k] = p;
+    } while(--k>=0);
 
-	if(q->key == key) {
-		for(k=0; k<=m && (p=update[k])->forward[k] == q; k++)
-			p->forward[k] = q->forward[k];
-		free_node(q);
-		while(l->header->forward[m] == NIL && m > 0 )
-				 m--;
+    if(q->key == key) {
+        for(k=0; k<=m && (p=update[k])->forward[k] == q; k++)
+            p->forward[k] = q->forward[k];
+        free_node(q);
+        while(l->header->forward[m] == NIL && m > 0 )
+                 m--;
 
-		l->level = m;
-		return(true);
+        l->level = m;
+        return(true);
 
-	} else {
+    } else {
         return(false);
     }
 }
@@ -301,23 +301,23 @@ int SkiplDelete(SkipList l, SkiplKeyType key)
 
 int SkiplSearch(SkipList l, SkiplKeyType key, SkiplValueType *valuePointer)
 {
-	int k;
-	SkiplNode p,q;
+    int k;
+    SkiplNode p,q;
 
-	p = l->header;
-	k = l->level;
-	do {
-		while (q = p->forward[k], q->key < key) {
-			p = q;
+    p = l->header;
+    k = l->level;
+    do {
+        while (q = p->forward[k], q->key < key) {
+            p = q;
         }
-	} while (--k>=0);
+    } while (--k>=0);
 
-	if (q->key != key) {
+    if (q->key != key) {
         return(false);
-	} else {
-		*valuePointer = q->v;
-		return(true);
-	}
+    } else {
+        *valuePointer = q->v;
+        return(true);
+    }
 }
 
 SkiplNode SkiplHead(SkipList l) {
@@ -356,85 +356,85 @@ SkiplKeyType keys[sampleSize];
 
 static void show_skipl(SkipList l)
 {
-	SkiplNode n;
-	#ifdef SKIPL_TEST
-	int count[ MaxNumberOfLevels];
-	int i, total=0;
+    SkiplNode n;
+    #ifdef SKIPL_TEST
+    int count[ MaxNumberOfLevels];
+    int i, total=0;
 
-	memset(&count, 0, MaxNumberOfLevels* sizeof(int));
-	for(n= l->header->forward[0]; n != NIL; n= n->forward[0])
-		count[ n->level]++;
-	puts("Node Level Count:");
-	for(i=0; i< MaxNumberOfLevels; i++){
-		printf("\t% 3d\t% 4d\t(% 7.2f%%)\n",
-			i, count[i], 100.0 * (float )count[i] / (float )sampleSize);
-		total+=count[i];
-	}
-	printf("\n");
-	printf("Total: %d/% 7.2f%%\t\n",
-			total, 100.0 * (float )total / (float )sampleSize);
-	#endif
+    memset(&count, 0, MaxNumberOfLevels* sizeof(int));
+    for(n= l->header->forward[0]; n != NIL; n= n->forward[0])
+        count[ n->level]++;
+    puts("Node Level Count:");
+    for(i=0; i< MaxNumberOfLevels; i++){
+        printf("\t% 3d\t% 4d\t(% 7.2f%%)\n",
+            i, count[i], 100.0 * (float )count[i] / (float )sampleSize);
+        total+=count[i];
+    }
+    printf("\n");
+    printf("Total: %d/% 7.2f%%\t\n",
+            total, 100.0 * (float )total / (float )sampleSize);
+    #endif
 
-	for(n= l->header->forward[0]; n != NIL; n= n->forward[0])
-		printf("%d('%d')--> ", n->key, n->v);
-	printf("NIL\n\n");
+    for(n= l->header->forward[0]; n != NIL; n= n->forward[0])
+        printf("%d('%d')--> ", n->key, n->v);
+    printf("NIL\n\n");
 }
 
 int main(void) {
-	SkipList l;
-	int i,k;
-	SkiplValueType v;
+    SkipList l;
+    int i,k;
+    SkiplValueType v;
 
-	SkiplInit();
-	l = SkiplNew();
+    SkiplInit();
+    l = SkiplNew();
 
-	#ifdef MSC
-	heapstat(_heapchk());
-	#endif
+    #ifdef MSC
+    heapstat(_heapchk());
+    #endif
 
-	printf("Building enter #\n");
-	for(k=0; k<sampleSize; k++){
-		keys[ k]=random();
-		SkiplInsert(l, keys[k], keys[k]);
-		printf("\r% 3d", k);
-	}
-	printf("\n\n");
+    printf("Building enter #\n");
+    for(k=0; k<sampleSize; k++){
+        keys[ k]=random();
+        SkiplInsert(l, keys[k], keys[k]);
+        printf("\r% 3d", k);
+    }
+    printf("\n\n");
 
-	show_skipl(l);
-	puts("Computing tests...");
-	for(i=0; i<4; i++) {
-		printf("Pass #%d\n", i);
-		#ifdef MSC
-		heapstat(_heapchk() );
-		#endif
+    show_skipl(l);
+    puts("Computing tests...");
+    for(i=0; i<4; i++) {
+        printf("Pass #%d\n", i);
+        #ifdef MSC
+        heapstat(_heapchk() );
+        #endif
 
-		for(k=0; k<sampleSize; k++){
-			if(!SkiplSearch(l, keys[k], &v))
-				printf("error in search #%d,#%d\n",i,k);
-			if (v != keys[k])
-				printf("search returned wrong value\n");
-		}
+        for(k=0; k<sampleSize; k++){
+            if(!SkiplSearch(l, keys[k], &v))
+                printf("error in search #%d,#%d\n",i,k);
+            if (v != keys[k])
+                printf("search returned wrong value\n");
+        }
 
-		for(k=0; k<sampleSize; k++){
-			if(!SkiplDelete(l, keys[k]))
-				printf("error in delete\n");
-			else{
-				keys[k] = random();
-				SkiplInsert(l,keys[k],keys[k]);
-			}
-		}
-	}
+        for(k=0; k<sampleSize; k++){
+            if(!SkiplDelete(l, keys[k]))
+                printf("error in delete\n");
+            else{
+                keys[k] = random();
+                SkiplInsert(l,keys[k],keys[k]);
+            }
+        }
+    }
 
-	#ifdef MSC
-	heapstat(_heapchk());
-	#endif
+    #ifdef MSC
+    heapstat(_heapchk());
+    #endif
 
-	puts("Exiting...");
-	SkiplFree(l);
+    puts("Exiting...");
+    SkiplFree(l);
 
-	#ifdef MSC
-	if(_heapchk() == _HEAPOK)
-	#endif
+    #ifdef MSC
+    if(_heapchk() == _HEAPOK)
+    #endif
 
      puts("Tests completed successfully");
     return 0;
@@ -447,24 +447,24 @@ static void heapstat(int status )
     printf("\nHeap status: " );
     switch(status )
     {
-	   case _HEAPOK:
-		  printf("OK - heap is fine" );
-		  break;
-	   case _HEAPEMPTY:
-		  printf("OK - empty heap" );
-		  break;
-	   case _HEAPEND:
-		  printf("OK - end of heap" );
-		  break;
-	   case _HEAPBADPTR:
-		  fprintf(stderr, "ERROR - bad pointer to heap" );
-		  break;
-	   case _HEAPBADBEGIN:
-		  fprintf(stderr, "ERROR - bad start of heap" );
-		  break;
-	   case _HEAPBADNODE:
-		  fprintf(stderr, "ERROR - bad node in heap" );
-		  break;
+       case _HEAPOK:
+          printf("OK - heap is fine" );
+          break;
+       case _HEAPEMPTY:
+          printf("OK - empty heap" );
+          break;
+       case _HEAPEND:
+          printf("OK - end of heap" );
+          break;
+       case _HEAPBADPTR:
+          fprintf(stderr, "ERROR - bad pointer to heap" );
+          break;
+       case _HEAPBADBEGIN:
+          fprintf(stderr, "ERROR - bad start of heap" );
+          break;
+       case _HEAPBADNODE:
+          fprintf(stderr, "ERROR - bad node in heap" );
+          break;
     }
     printf("\n\n" );
 }

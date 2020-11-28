@@ -30,6 +30,8 @@ where
     m    Maximum-Urgency-First (MUF)
     r    Rate Monotonic (RM)
 
+Ported and expanded by Hans (hans@ele.ufes.br)
+
 ****************************************************************************/
 #include <stdlib.h> /* for malloc() */
 #include <stdio.h>  /* for fopen() */
@@ -483,7 +485,7 @@ void monotonic_rate_init(void)
     float task_load = 0.0, critical_task_load=0.0, schedulability_bound;
 
     /* in the RM case, 'deadline_list' is different from the 'merit_list' */
-    deadline_list = NewList(); //deadline_id= 'D';
+    deadline_list = NewList();
 
     /* calculate n*(2^1/n - 1) */
     schedulability_bound= num_tasks * (pow(2.0, 1.0/num_tasks) -1.0);
@@ -864,7 +866,7 @@ int readtaskset(char *fname) {
                 exit(-1);
             }
             idletask = (taskset+0);
-            idletask->sys_id = '*';
+            idletask->sys_id = '.';
             idletask->name = "Idle Task";
             idletask->state = READY;
             idletask->deadline = 0;
@@ -872,7 +874,7 @@ int readtaskset(char *fname) {
             idletask->merit = &(idletask->deadline);
             break;
         case 2: /* maxtime */
-               token = strtok(NULL," \t\n");
+            token = strtok(NULL," \t\n");
             max_time=atoi(token);
             break;
         case 3: /* task */

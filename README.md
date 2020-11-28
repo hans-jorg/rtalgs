@@ -28,3 +28,21 @@ Just use make and you get a *rtalgs* binary
     
 	make
 
+# Input format
+
+The input format has changed to a simple one. The lines have a simple keyword to
+identify the data.
+
+    title Exemplo 1
+    tasks 3
+    maxtime 2000
+    task name1 HIGH 100 10
+    task name2 LOW  200 10
+    end
+    
+The task line has the same format as before.
+
+    task <name> <HIGH|LOW> <period> <load>
+    
+
+

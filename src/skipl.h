@@ -1,6 +1,6 @@
-/*
+/******************************************************************************
  *                  SKIPL.H
- * Skip list function declarations
+ * Skip list interface (functions and constant declarations)
  *****************************************************************************/
 #ifndef SKIPL_H
 #define SKIPL_H
