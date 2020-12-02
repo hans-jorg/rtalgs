@@ -3,10 +3,16 @@
 This is a port and upgrade of the simulation tool for real time schedulers presented by
 Alberto Ferrari's article [Real Time Scheduling Algorithms](https://www.drdobbs.com/embedded-systems/real-time-scheduling-algorithms/184409363?pgno=10), published in the December, 1994 issue of Dr. Dobb's magazine.
 
-The code originally was developed for DOS.
-
-The code was ported to Linux and in the process expanded. It can now simulates many task sets and
+The code originally was developed for DOS.  The code was ported to Linux and in the process expanded. It can now simulates many task sets and
 has a verbose option.
+
+The original (running) version can be found in the src-original folder.
+
+This repo has two branches: 
+
+* master: with the new (updated) code with a new input format.
+* main: with the original code (running and using the old input format)
+
 
 # Use
     rtalgs: calculate the schedulability of a task set
